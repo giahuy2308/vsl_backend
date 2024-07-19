@@ -3,6 +3,8 @@ from .models import *
 
 
 class UserQuestionSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source="author.username")
+
     class Meta:
         model = UserQuestion
         fields = (
@@ -10,14 +12,11 @@ class UserQuestionSerializer(serializers.ModelSerializer):
             'content',
             'author',
         )
-        extra_kwargs = {
-            "author":{
-                "read_only":True
-            }
-        }
 
 
 class AnswerForUQSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source="author.username")
+
     class Meta:
         model = AnswerForUQ
         fields = (
@@ -26,11 +25,7 @@ class AnswerForUQSerializer(serializers.ModelSerializer):
             'author',
             'content',
         )
-        extra_kwargs = {
-            "author":{
-                "read_only":True
-            }
-        }
+
 
 
 class ExaminationSerializer(serializers.ModelSerializer):

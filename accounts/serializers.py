@@ -23,6 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
     
 
 class NotificationSerializer(serializers.ModelSerializer):
+    user = serializers.ReadOnlyField(source='user.username')
+
     class Meta:
         model = Notification
         fields = (

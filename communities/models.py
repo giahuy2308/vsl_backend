@@ -28,12 +28,11 @@ class Reaction(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(default=1)
     content_object = GenericForeignKey('content_type',"object_id")
-    
     type = models.CharField(max_length=100, choices=TYPE_CHOICES)
     author = models.ForeignKey(get_user_model(), related_name="reactions", on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.type}'
+        return f'{self.type} | {self.content_type.model} | {self.object_id}'
 
 
 class Page(models.Model):
@@ -45,7 +44,7 @@ class Page(models.Model):
     reactions = GenericRelation(Reaction, related_query_name='page')
 
     def __str__(self):
-        return f'Page of {self.author.username}'
+        return f'Page of {self.author.username} | {self.id}'
 
 
 class Comment(models.Model):
@@ -56,4 +55,4 @@ class Comment(models.Model):
     reactions = GenericRelation(Reaction, related_query_name='comment')
 
     def __str__(self):
-        return f'Comment of {self.author.username}'
+        return f'Comment of {self.author.username} | {self.id}'
