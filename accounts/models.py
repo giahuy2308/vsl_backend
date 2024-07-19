@@ -1,10 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth import get_user_model
+
 # Create your models here.
 
 class CustomUser(AbstractUser):
     email = models.EmailField(unique=True)
+
 
 # It's required to import Page after creating CustomUser
 from communities.models import Page
@@ -12,7 +14,7 @@ from communities.models import Page
 class Notification(models.Model):
     title = models.CharField(max_length=100,default="")
     description = models.TextField()
-    user = models.OneToOneField(CustomUser,related_name="notifications",on_delete=models.CASCADE)
+    user = models.OneToOneField(get_user_model(),related_name="notifications",on_delete=models.CASCADE)
     status = models.CharField(
         max_length=100,
         choices=(
