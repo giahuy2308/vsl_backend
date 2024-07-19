@@ -6,7 +6,7 @@ from .models import Notification
 from .serializers import UserSerializer,NotificationSerializer
 
 from rest_framework.views import APIView, Response, status
-from rest_framework import viewsets,permissions
+from rest_framework import viewsets, permissions, generics
 
 
 def isexistlower(li):
@@ -14,6 +14,7 @@ def isexistlower(li):
         return True
     try:
         return isexistlower([li[i] for i in range(1,len(li))])
+        # return isexistlower(li[1,])
     except IndexError:
         return False
 def isexistupper(li):
@@ -33,21 +34,38 @@ def isexistspecial(li):
         return False
     
 
-class SignUpView(APIView):
+class SignUpView(generics.CreateAPIView):
+    serializer_class = UserSerializer
 
     def post(self, request):
-        passconf = request.data['password']
-        passconf_list = list(passconf)
-        if len(passconf) < 8:
-            return Response({"status":"Mật khẩu phải chứa ít nhất 8 kí tự"})
-        if passconf.isdigit():
-            return Response({"status":"Mật khẩu không thể hoàn toàn đều là số"})
-        if not isexistlower(passconf_list):
-            return Response({"status":"Mật khẩu cần chứa kí tự viết thường"})
-        if not isexistupper(passconf_list):
-            return Response({"status":"Mật khẩu cần chứa kí tự viết hoa"})
-        if not isexistspecial(passconf_list):
-            return Response({"status":"Mật khẩu cần chứa kí tự đặc biệt"})
+        pas = request.data['password']
+        pas_list = pas
+        
+        if request.data["username"] == "":
+            return Response({"status":"Hãy nhập tên"}, status=status.HTTP_400_BAD_REQUEST)
+        if "@" in request.data["username"]:
+            return Response({"status":"Tên đăng nhập không thể chứa kí tự @"}, status=status.HTTP_400_BAD_REQUEST)
+        if get_user_model().objects.filter(username=request.data["username"]):
+            return Response({"status":"Đã có tài khoản đăng ký với tên này"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if request.data["email"] == "":
+            return Response({"status":"Hãy nhập email"}, status=status.HTTP_400_BAD_REQUEST)
+        if not "@" in request.data["email"]:
+            return Response({"status":"Email phải chứa kí tự @"}, status=status.HTTP_400_BAD_REQUEST)
+        if get_user_model().objects.filter(email=request.data["email"]):
+            return Response({"status":"Đã có tài khoản đăng ký với email này"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        if len(pas) < 8:
+            return Response({"status":"Mật khẩu phải chứa ít nhất 8 kí tự"}, status=status.HTTP_400_BAD_REQUEST)
+        if pas.isdigit():
+            return Response({"status":"Mật khẩu không thể hoàn toàn đều là số"}, status=status.HTTP_400_BAD_REQUEST)
+        if not isexistlower(pas_list):
+            return Response({"status":"Mật khẩu cần chứa kí tự viết thường"}, status=status.HTTP_400_BAD_REQUEST)
+        if not isexistupper(pas_list):
+            return Response({"status":"Mật khẩu cần chứa kí tự viết hoa"}, status=status.HTTP_400_BAD_REQUEST)
+        if not isexistspecial(pas_list):
+            return Response({"status":"Mật khẩu cần chứa kí tự đặc biệt"}, status=status.HTTP_400_BAD_REQUEST)
         
         if request.data['re_password'] != request.data['password']:
             return Response({"status": "Mật khẩu không khớp"}, status=status.HTTP_400_BAD_REQUEST)
@@ -56,12 +74,13 @@ class SignUpView(APIView):
         
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"status":"Đăng ký thành công"}, status=status.HTTP_200_OK)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LogInView(APIView):
+class LogInView(generics.CreateAPIView):
+    serializer_class = UserSerializer
 
     def post(self,request):
         username = request.data.get('username')
@@ -72,15 +91,15 @@ class LogInView(APIView):
                 user = get_user_model().objects.get(email=username)
                 username = user.username
             except get_user_model().DoesNotExist:
-                return Response({"status":"Email or password incorrect"})
+                return Response({"status":"Email hoặc mật khẩu sai"}, status=status.HTTP_404_NOT_FOUND)
         
         user = authenticate(username=username, password=password)
 
         if user is not None:
             login(request=request,user=user)    
-            return Response({"status":"Sign in successfully"})
+            return Response({"status":"Đăng nhập thành công"},status=status.HTTP_200_OK)
         
-        return Response({"status":"Username or password incorrect"})
+        return Response({"status":"Tên đăng nhập hoặc mật khẩu sai"}, status=status.HTTP_404_NOT_FOUND)
     
 class LogOutView(APIView):
 

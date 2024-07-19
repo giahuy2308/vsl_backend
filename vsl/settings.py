@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     # 3rd-party
     'rest_framework',
     'corsheaders',
+    # "social_django"
 ]
 
 AUTH_USER_MODEL = 'accounts.CustomUser'

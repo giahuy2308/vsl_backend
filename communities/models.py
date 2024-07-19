@@ -27,7 +27,7 @@ class Reaction(models.Model):
     
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(default=1)
-    content_object = GenericForeignKey('content_type')
+    content_object = GenericForeignKey('content_type',"object_id")
     
     type = models.CharField(max_length=100, choices=TYPE_CHOICES)
     author = models.ForeignKey(get_user_model(), related_name="reactions", on_delete=models.CASCADE)

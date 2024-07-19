@@ -11,6 +11,17 @@ class ReactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reaction
         fields = '__all__'
+        extra_kwargs = {
+            "object_id":{
+                "read_only":True,
+            },
+            "content_type":{
+                "read_only":True,
+            },
+            "author":{
+                "read_only":True,
+            }
+        }
 
 
 
