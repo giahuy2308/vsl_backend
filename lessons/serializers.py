@@ -7,11 +7,7 @@ class UserQuestionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserQuestion
-        fields = (
-            'id',
-            'content',
-            'author',
-        )
+        fields = "__all__"
 
 
 class AnswerForUQSerializer(serializers.ModelSerializer):
@@ -19,78 +15,44 @@ class AnswerForUQSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AnswerForUQ
-        fields = (
-            'id',
-            'question',
-            'author',
-            'content',
-        )
+        fields = "__all__"
 
 
 
 class ExaminationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Examination
-        fields = (
-            "id",
-            'title',
-            'of_course',
-            'total_mark',
-        )
+        fields = "__all__"
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Question
-        fields = (
-            "id",
-            'examination',
-            'title',
-            'answer',
-        )
+        fields = "__all__"
 
 
 class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
-        fields = (
-            'id',
-            'question',
-            'title',
-        )
+        fields = '__all__'
 
 
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lesson
-        fields = (
-            'id',
-            'title',
-            'of_course',
-            'status',
-        )
+        fields = "__all__"
 
 
 class SectionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
-        fields = (
-            'id',
-            'title',
-            'lesson',
-        )
+        fields = "__all__"
 
 
 class ExerciseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Exercise
-        fields = (
-            'id',
-            'lesson',
-            'title',
-            'content',
-            'answer',
-        )
+        fields = "__all__"
 
 
 # class MyAnswerSerializer(serializers.ModelSerializer):
@@ -111,32 +73,16 @@ class ExerciseSerializer(serializers.ModelSerializer):
 class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
-        fields = (
-            'id',
-            'section',
-            'content',
-            'no',
-        )
+        fields = "__all__"
 
 
 class AnimationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Animation
-        fields = (
-            'id',
-            'section',
-            'name',
-            'no',
-        )
+        fields = "__all__"
 
 
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = (
-            'id',
-            'section',
-            'image',
-            'alt',
-            'no',
-        )
+        fields = "__all__"

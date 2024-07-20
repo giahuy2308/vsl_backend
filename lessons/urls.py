@@ -1,4 +1,5 @@
 from rest_framework import routers
+from django.urls import path
 from .views import *
 
 router = routers.SimpleRouter()
@@ -16,4 +17,8 @@ router.register(r'image', ImageView)
 router.register(r'animation', AnimationView)
 
 
-urlpatterns = router.urls
+urlpatterns = [
+    path("section/<str:content_type>/<int:obj_pk>/", SectionView.as_view({
+        'get':'list'
+    }))
+] + router.urls

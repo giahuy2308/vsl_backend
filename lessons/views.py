@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions, views
-from rest_framework.decorators import action
+from django.http import Http404
 # import requests
 from .models import *
 from .serializers import *
@@ -30,18 +30,6 @@ class ExaminationView(viewsets.ModelViewSet):
     serializer_class = ExaminationSerializer
     queryset = Examination.objects.all()
 
-    @action(detail=True, methods=['post'])
-    def send(self, request, pk):
-        examination = Examination.objects.get(pk=pk)
-        questions = examination.questions.all()
-        mark = 0
-        for i in range(len(request.data)):
-            if (request.data[questions[i].title]==questions[i].answer):
-                mark +=1
-        total_mark = examination.total_mark*mark/len(questions)
-        return views.Response({"total mark":int(total_mark*100)/100})
-
-         
 
 class QuestionView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
@@ -56,8 +44,6 @@ class QuestionView(viewsets.ModelViewSet):
             answer_serializer.save()   
 
     
-
-
 class ChoiceView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
     serializer_class = ChoiceSerializer
@@ -74,10 +60,7 @@ class LessonView(viewsets.ModelViewSet):
     queryset = Lesson.objects.all()
 
 
-class SectionView(viewsets.ModelViewSet):
-    permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
-    serializer_class = SectionSerializer
-    queryset = Section.objects.all()
+
 
 
 class ExerciseView(viewsets.ModelViewSet):
@@ -93,7 +76,22 @@ class ExerciseView(viewsets.ModelViewSet):
 
 #     def perform_create(self, serializer):
 #         serializer.save(author=self.request.user)
+class SectionView(viewsets.ModelViewSet):
+    permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
+    serializer_class = SectionSerializer
+    queryset = Section.objects.all()
 
+    def get_content_type(content_type):
+        try:
+            return ContentType.objects.get(model=content_type)
+        except ContentType.DoesNotExist:
+            raise Http404
+
+    def list(self,request, content_type, obj_pk):
+        contenttype = self.get_content_type(content_type)
+        section = Section.objects.filter(content_type=contenttype)
+        
+        
 
 class ContentView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]

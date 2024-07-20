@@ -67,8 +67,7 @@ class ReactionView(viewsets.ModelViewSet):
         def get_value():
             if contenttype.name == "page":
                 return len(Page.objects.filter(pk=obj_pk)) != len(reaction.filter(author=request.user))
-            else:
-                return len(Comment.objects.filter(pk=obj_pk)) != len(reaction.filter(author=request.user))
+            return len(Comment.objects.filter(pk=obj_pk)) != len(reaction.filter(author=request.user))
 
         if serializer.is_valid() and get_value():
             self.perform_create(serializer=serializer, content_type=contenttype, obj_pk=obj_pk)

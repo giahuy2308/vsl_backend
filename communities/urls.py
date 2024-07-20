@@ -10,11 +10,11 @@ route.register(f"community/comments",CommentView)
 
 
 urlpatterns = [
-    path("community/reactions/<str:content_type>/<int:obj_pk>/",ReactionView.as_view({
+    path("community/reactions/<str:content_type>/<int:obj_pk>/", ReactionView.as_view({
         'get': 'list',
         'post': 'create',
     })),
-    path("community/reactions/<int:pk>/",ReactionView.as_view({
+    path("community/reactions/<int:pk>/", ReactionView.as_view({
         'get': 'retrieve',
         'put': 'update',
         'delete': 'destroy',
