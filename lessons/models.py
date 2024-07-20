@@ -1,8 +1,5 @@
 from django.db import models
 from django.contrib.auth import get_user_model 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 
 # Create your models here.
 
@@ -90,10 +87,8 @@ class Exercise(models.Model):
 class Section(models.Model):
     title = models.CharField(max_length=100, default="")
     lesson = models.ForeignKey(Lesson,related_name="sections",on_delete=models.CASCADE)
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField(default=1)
-    content_object = GenericForeignKey('content_type',"object_id")
-
+    content_quantity = models.PositiveIntegerField(default=0)
+    
     def __str__(self):
         return f"{self.title}"
 
@@ -102,7 +97,6 @@ class Content(models.Model):
     section = models.ForeignKey(Section,related_name="contents",on_delete=models.CASCADE)
     content = models.TextField()
     no = models.PositiveIntegerField(default=1)
-    section = GenericRelation(Section, related_query_name='content')
 
     def __str__(self):
         return f'"{self.no}" of "{self.section.title}"'
@@ -113,7 +107,6 @@ class Image(models.Model):
     alt = models.CharField(max_length=100,default="")
     image = models.ImageField(upload_to="static/image/")
     no = models.PositiveIntegerField(default=1)
-    section = GenericRelation(Section, related_query_name='image')
 
     def __str__(self):
         return f'"{self.no}" of "{self.section.title}"'
@@ -123,9 +116,6 @@ class Animation(models.Model):
     section = models.ForeignKey(Section,related_name="animations",on_delete=models.CASCADE)
     name = models.CharField(max_length=100,default="")
     no = models.PositiveIntegerField(default=1)
-    section = GenericRelation(Section, related_query_name='animation')
 
     def __str__(self):
         return f'"{self.no}" of "{self.section.title}"'
-
-

@@ -44,6 +44,8 @@ class LessonSerializer(serializers.ModelSerializer):
 
 
 class SectionSerializer(serializers.ModelSerializer):
+    content_quantity = serializers.ReadOnlyField()
+    
     class Meta:
         model = Section
         fields = "__all__"
@@ -55,34 +57,26 @@ class ExerciseSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-# class MyAnswerSerializer(serializers.ModelSerializer):
-    # class Meta:
-    #     model = MyAnswer
-    #     fields = (
-    #         'exercise',
-    #         'author',
-    #         'answer',
-    #     )
-    #     extra_kwargs = {
-    #         "author" : {
-    #             "read_only":True
-    #         }
-    #     }
-
-
 class ContentSerializer(serializers.ModelSerializer):
+    no = serializers.ReadOnlyField()
+
     class Meta:
         model = Content
         fields = "__all__"
 
 
 class AnimationSerializer(serializers.ModelSerializer):
+    no = serializers.ReadOnlyField()
+
+
     class Meta:
         model = Animation
         fields = "__all__"
 
 
 class ImageSerializer(serializers.ModelSerializer):
+    no = serializers.ReadOnlyField()
+
     class Meta:
         model = Image
         fields = "__all__"

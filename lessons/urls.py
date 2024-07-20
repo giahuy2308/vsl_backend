@@ -18,7 +18,5 @@ router.register(r'animation', AnimationView)
 
 
 urlpatterns = [
-    path("section/<str:content_type>/<int:obj_pk>/", SectionView.as_view({
-        'get':'list'
-    }))
+    
 ] + router.urls

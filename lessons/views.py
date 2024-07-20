@@ -1,4 +1,4 @@
-from rest_framework import viewsets, permissions, views
+from rest_framework import viewsets, permissions, views, status
 from django.http import Http404
 # import requests
 from .models import *
@@ -30,6 +30,28 @@ class ExaminationView(viewsets.ModelViewSet):
     serializer_class = ExaminationSerializer
     queryset = Examination.objects.all()
 
+    # def list(self, request):
+    #     examinations = Examination.objects.all()
+    #     serializer = ExaminationSerializer(examinations, many=True)
+    #     for i in range(len(examinations)):
+    #         questions = QuestionSerializer(examinations[i].questions.all(), many=True).data
+    #         serializer.data[i]["examinations"] = questions
+    #         for j in range(len(questions)):
+    #             choices = ChoiceSerializer(Question.objects.get(pk=questions[j]['id']).choices.all(), many=True).data
+    #             serializer.data[i]["examinations"][j]["choices"] = choices
+    #     return views.Response(serializer.data, status=status.HTTP_200_OK)
+
+    def retrieve(self, request, pk):
+        examination = self.get_object()
+        serializer = ExaminationSerializer(examination)
+        questions = QuestionSerializer(examination.questions.all(), many=True).data
+        data = serializer.data
+        data["examinations"] = questions
+        for j in range(len(questions)):
+            choices = ChoiceSerializer(Question.objects.get(pk=questions[j]['id']).choices.all(), many=True).data
+            data["examinations"][j]["choices"] = choices
+        return views.Response(data, status=status.HTTP_200_OK)
+
 
 class QuestionView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
@@ -50,17 +72,10 @@ class ChoiceView(viewsets.ModelViewSet):
     queryset = Choice.objects.all()
 
 
-# class ViewMark(generics.RetrieveAPIView):
-    
-
-
 class LessonView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
     serializer_class = LessonSerializer
     queryset = Lesson.objects.all()
-
-
-
 
 
 class ExerciseView(viewsets.ModelViewSet):
@@ -69,34 +84,47 @@ class ExerciseView(viewsets.ModelViewSet):
     queryset = Exercise.objects.all()
 
 
-# class MyAnswerView(viewsets.ModelViewSet):
-#     permission_classes = [permissions.IsAuthenticated]
-#     serializer_class = MyAnswerSerializer
-#     queryset = MyAnswer.objects.all()
-
-#     def perform_create(self, serializer):
-#         serializer.save(author=self.request.user)
 class SectionView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
     serializer_class = SectionSerializer
     queryset = Section.objects.all()
 
-    def get_content_type(content_type):
-        try:
-            return ContentType.objects.get(model=content_type)
-        except ContentType.DoesNotExist:
-            raise Http404
+    def list(self, request):
+        sections = Section.objects.all()
+        serializer = SectionSerializer(sections, many=True)
+        get_no = lambda obj : obj['no']
+        for i in range(len(sections)):
+            content = ContentSerializer(sections[i].contents.all(), many=True)
+            animation = AnimationSerializer(sections[i].animations.all(), many=True)
+            image = ImageSerializer(sections[i].images.all(), many=True)
+            li = sorted(content.data + animation.data + image.data, key=get_no)
+            serializer.data[i]["section"] = li
+        return views.Response(serializer.data, status=status.HTTP_200_OK)
 
-    def list(self,request, content_type, obj_pk):
-        contenttype = self.get_content_type(content_type)
-        section = Section.objects.filter(content_type=contenttype)
-        
-        
+    def retrieve(self, request, pk):
+        section = self.get_object()
+        serializer = SectionSerializer(section)
+        get_no = lambda obj : obj['no']
+        content = ContentSerializer(section.contents.all(), many=True)
+        animation = AnimationSerializer(section.animations.all(), many=True)
+        image = ImageSerializer(section.images.all(), many=True)
+        li = sorted(content.data + animation.data + image.data, key=get_no)
+        data = serializer.data
+        data["section"] = li
+        return views.Response(data, status=status.HTTP_200_OK)
+
 
 class ContentView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
     serializer_class = ContentSerializer
     queryset = Content.objects.all()
+
+    def perform_create(self, serializer):
+        sesction = Section.objects.get(pk=self.request.data["section"])
+        sesction.content_quantity += 1
+        sesction.save()
+        if serializer.is_valid():
+            serializer.save(no=sesction.content_quantity)
 
 
 class ImageView(viewsets.ModelViewSet):
@@ -104,8 +132,24 @@ class ImageView(viewsets.ModelViewSet):
     serializer_class = ImageSerializer
     queryset = Image.objects.all()
 
+    def perform_create(self, serializer):
+        sesction = Section.objects.get(pk=self.request.data["section"])
+        sesction.content_quantity += 1
+        sesction.save()
+
+        if serializer.is_valid():
+            serializer.save(no=sesction.content_quantity)
+
 
 class AnimationView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated,IsSuperUserOrReadOnly]
     serializer_class = AnimationSerializer
     queryset = Animation.objects.all()
+
+    def perform_create(self, serializer):
+        sesction = Section.objects.get(pk=self.request.data["section"])
+        sesction.content_quantity += 1
+        sesction.save()
+
+        if serializer.is_valid():
+            serializer.save(no=sesction.content_quantity)
