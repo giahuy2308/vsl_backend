@@ -1,0 +1,26 @@
+services:
+  db:
+    container_name: db
+    image: postgres:13
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+
+  backend:
+    container_name: vsl_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: vsl_backend:latest
+    command: gunicorn --bind 0.0.0.0:8000 vsl.wsgi:application
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
+    name: vsl_postgres_data
+    external: true
+
