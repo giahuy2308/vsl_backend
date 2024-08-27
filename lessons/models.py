@@ -31,6 +31,7 @@ class Topic(ModelWithNo):
 
 class Chapter(ModelWithNo):
     topic = models.ForeignKey(Topic, related_name="chapters", on_delete=models.CASCADE)
+    summary = models.TextField()
 
 
 class Lesson(ModelWithNo):
