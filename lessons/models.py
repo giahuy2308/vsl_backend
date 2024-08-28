@@ -13,7 +13,7 @@ class Course(models.Model):
 
 
 class ModelWithNo(models.Model):
-    title = models.CharField(max_length=255, default="")
+    title = models.CharField(max_length=255, default="", unique=True)
     no = models.PositiveBigIntegerField(default=0)
 
     class Meta:
@@ -31,7 +31,7 @@ class Topic(ModelWithNo):
 
 class Chapter(ModelWithNo):
     topic = models.ForeignKey(Topic, related_name="chapters", on_delete=models.CASCADE)
-    summary = models.TextField()
+    summary = models.TextField(default="")
 
 
 class Lesson(ModelWithNo):

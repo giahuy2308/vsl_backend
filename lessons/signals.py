@@ -1,7 +1,8 @@
+from django.db.models.fields.related import ForeignKey
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
-from .models import Question, Choice, Content, Animation, Image, Lesson, Section
+from .models import Question, Choice, Content, Animation, Image, Lesson, Section, Topic, Chapter
 
 @receiver(post_save, sender=Question)
 def create_or_update_choice(sender, instance, created, **kwargs):
@@ -15,8 +16,27 @@ def create_or_update_choice(sender, instance, created, **kwargs):
         except Choice.DoesNotExist:
             Choice.objects.create(question=instance, title=instance.answer)
 
-def update_obj_no(instance, model, is_insert_instance):
-    all_objs = list(model.objects.all())
+def get_foreign_key_related_objects(instance):
+    foreign_key_field = None
+    for field in instance._meta.get_fields():
+        if isinstance(field, ForeignKey):
+            foreign_key_field = field  # Gán giá trị cho foreign_key_field
+            related_field_name = field.name
+            break
+
+    if foreign_key_field is None:
+        raise ValueError("Instance không có liên kết ForeignKey nào.")
+
+
+    return type(instance).objects.filter(
+        **{related_field_name: getattr(instance, related_field_name)}
+    )
+
+    
+
+def update_obj_no(instance, is_insert_instance):
+    all_objs = list(get_foreign_key_related_objects(instance))
+    
     if is_insert_instance:
         all_objs.remove(instance)
         all_objs.insert(instance.no - 1, instance)
@@ -26,19 +46,23 @@ def update_obj_no(instance, model, is_insert_instance):
             obj.no = i 
             obj.save(update_fields=['no'])
 
+@receiver(post_save, sender=Topic)
+@receiver(post_save, sender=Chapter)
 @receiver(post_save, sender=Section)
 @receiver(post_save, sender=Lesson)
 def create_or_update_obj(sender, instance, created, **kwargs):
     if created:
-        if instance.no == 0:
-            instance.no = len(sender.objects.all()) + 1
+        if instance.no == 0:    
+            instance.no = len(get_foreign_key_related_objects(instance)) + 1
             instance.save(update_fields=['no'])
-    update_obj_no(instance, sender, True)
+    update_obj_no(instance, True)
         
+@receiver(post_save, sender=Topic)
+@receiver(post_save, sender=Chapter)
 @receiver(post_delete, sender=Section)
 @receiver(post_delete, sender=Lesson)
-def delete_lesson(sender, instance, **kwargs):
-    update_obj_no(instance, sender, False)
+def update_obj_no_after_delete(sender, instance, **kwargs):
+    update_obj_no(instance, False)
 
 
 def update_section_content_no(instance, is_insert_instance):

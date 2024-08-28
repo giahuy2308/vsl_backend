@@ -38,7 +38,22 @@ class TopicView(viewsets.ModelViewSet):
         return super().get_queryset()
 
     def retrieve(self, request, pk):
-        serializer = TopicSerializer(self.get_object(), context={"include_lessons":True})
+        serializer = TopicSerializer(self.get_object(), context={"include_chapters":True})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class ChapterView(viewsets.ModelViewSet):
+    permission_classes = [IsSuperUserOrReadOnly]
+    queryset = Chapter.objects.all()
+    serializer_class = ChapterSerializer
+
+    def get_queryset(self):
+        query = self.request.GET.get("q")
+        if query is not None: 
+            self.queryset = Chapter.objects.filter(Q(title__icontains=query))
+        return super().get_queryset()
+
+    def retrieve(self, request, pk):
+        serializer = ChapterSerializer(self.get_object(), context={"include_lessons":True})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class LessonView(viewsets.ModelViewSet):
