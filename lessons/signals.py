@@ -39,10 +39,10 @@ def update_obj_no(instance, is_insert_instance):
     
     if is_insert_instance:
         all_objs.remove(instance)
-        all_objs.insert(instance.no - 1, instance)
+        all_objs.insert(instance.no, instance)
 
-    for i, obj in enumerate(all_objs, 1):
-        if obj.no != i :
+    for i, obj in enumerate(all_objs):
+        if obj.no != i:
             obj.no = i 
             obj.save(update_fields=['no'])
 
@@ -52,7 +52,7 @@ def update_obj_no(instance, is_insert_instance):
 @receiver(post_save, sender=Lesson)
 def create_or_update_obj(sender, instance, created, **kwargs):
     if created:
-        if instance.no == 0:    
+        if instance.no == -1:    
             instance.no = len(get_foreign_key_related_objects(instance)) + 1
             instance.save(update_fields=['no'])
     update_obj_no(instance, True)
@@ -71,10 +71,10 @@ def update_section_content_no(instance, is_insert_instance):
     scl.sort(key=lambda obj: obj.no)
     if is_insert_instance:
         scl.remove(instance)
-        scl.insert(instance.no - 1, instance)
+        scl.insert(instance.no, instance)
 
-    for i, v in enumerate(scl, 1):
-        if v.no != i :
+    for i, v in enumerate(scl):
+        if v.no != i:
             v.no = i 
             v.save(update_fields=['no'])
 
@@ -88,7 +88,7 @@ def delete_section_content(instance):
 def create_or_update_section_content(instance,created):
     if created:
         instance.section.content_quantity += 1
-        if instance.no == 0:
+        if instance.no == -1:
             instance.no = instance.section.content_quantity
             instance.save(update_fields=['no'])
     update_section_content_no(instance, True)

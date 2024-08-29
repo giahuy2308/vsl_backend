@@ -14,7 +14,7 @@ class Course(models.Model):
 
 class ModelWithNo(models.Model):
     title = models.CharField(max_length=255, default="", unique=True)
-    no = models.PositiveBigIntegerField(default=0)
+    no = models.PositiveBigIntegerField(default=-1)
 
     class Meta:
         abstract = True
@@ -54,7 +54,7 @@ class SectionContentModel(models.Model):
     section = models.ForeignKey(
         Section, related_name="%(class)ss", on_delete=models.CASCADE
     )
-    no = models.PositiveBigIntegerField(default=0)
+    no = models.PositiveBigIntegerField(default=-1)
 
     class Meta:
         abstract = True
@@ -98,8 +98,8 @@ class Exercise(models.Model):
 
 class Examination(models.Model):
     title = models.CharField(max_length=100, default="")
-    lesson = models.ForeignKey(
-        Lesson, related_name="examinations", on_delete=models.CASCADE
+    chapter = models.ForeignKey(
+        Chapter, related_name="examinations", on_delete=models.CASCADE
     )
     total_score = models.PositiveIntegerField(default=0)
 

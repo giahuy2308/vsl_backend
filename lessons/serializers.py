@@ -73,7 +73,7 @@ class ChapterSerializer(serializers.ModelSerializer):
             lessons = LessonSerializer(instance.lessons, many=True).data
 
             for obj in lessons:
-                obj.pop("topic")
+                obj.pop("chapter")
 
             representation["lessons"] = lessons
 

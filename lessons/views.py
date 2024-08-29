@@ -110,7 +110,7 @@ class ExerciseView(viewsets.ModelViewSet):
     def get_queryset(self):
         query = self.request.GET.get("q")
         if query is not None: 
-            self.queryset = Lesson.objects.filter(
+            self.queryset = Exercise.objects.filter(
                 Q(title__icontains=query) | Q(lesson__title__icontains=query)
             )
         return super().get_queryset()
@@ -125,7 +125,7 @@ class ExaminationView(viewsets.ModelViewSet):
         query = self.request.GET.get("q")
         if query is not None: 
             self.queryset = Examination.objects.filter(
-                Q(title__icontains=query) | Q(lesson__title__icontains=query)
+                Q(title__icontains=query) | Q(chapter__title__icontains=query)
             )
         return super().get_queryset()
 
