@@ -52,9 +52,9 @@ class Section(ModelWithNo):
 
 class SectionContentModel(models.Model):
     section = models.ForeignKey(
-        Section, related_name="%(class)s", on_delete=models.CASCADE
+        Section, related_name="%(class)ss", on_delete=models.CASCADE
     )
-    no = models.PositiveBigIntegerField(default=1)
+    no = models.PositiveBigIntegerField(default=0)
 
     class Meta:
         abstract = True
