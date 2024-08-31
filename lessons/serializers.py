@@ -30,14 +30,10 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-
-        if self.context.get("include_topics"):
-            topics = TopicSerializer(instance.topics.all(), many=True).data
-
-            for obj in topics:
-                obj.pop("course")
-
-            representation["topics"] = topics
+        topics = TopicSerializer(instance.topics.all(), many=True).data
+        for obj in topics:
+            obj.pop("course")
+        representation["topics"] = topics
 
         return representation
 
@@ -50,13 +46,12 @@ class TopicSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
-        if self.context.get("include_chapters"):
-            chapters = ChapterSerializer(instance.chapters, many=True).data
+        chapters = ChapterSerializer(instance.chapters, many=True).data
 
-            for obj in chapters:
-                obj.pop("topic")
+        for obj in chapters:
+            obj.pop("topic")
 
-            representation["chapters"] = chapters
+        representation["chapters"] = chapters
 
         return representation
 

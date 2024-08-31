@@ -33,7 +33,8 @@ def get_foreign_key_related_objects(instance):
     foreign_key_field = None
     for field in instance._meta.get_fields():
         if isinstance(field, ForeignKey):
-            foreign_key_field = field  # Gán giá trị cho foreign_key_field
+            foreign_key_field = field
+            break
 
     if foreign_key_field is None:
         raise ValueError("Instance không có liên kết ForeignKey nào.")

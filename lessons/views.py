@@ -4,12 +4,14 @@ from rest_framework.views import Response
 
 from django.http import Http404
 from django.db.models import Q
+
 # import requests
 from vsl.permissions import IsAuthorOrReadOnly, IsSuperUserOrReadOnly
 from .serializers import *
 from .models import *
 
 # Create your views here.
+
 
 class CourseView(viewsets.ModelViewSet):
     permission_classes = [IsSuperUserOrReadOnly]
@@ -18,13 +20,14 @@ class CourseView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = self.request.GET.get("q")
-        if query is not None: 
+        if query is not None:
             self.queryset = Course.objects.filter(Q(title__icontains=query))
         return super().get_queryset()
 
-    def retrieve(self, request, pk):
-        serializer = CourseSerializer(self.get_object(), context={"include_topics":True})
+    def list(self, request):
+        serializer = CourseSerializer(self.get_queryset(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class TopicView(viewsets.ModelViewSet):
     permission_classes = [IsSuperUserOrReadOnly]
@@ -33,13 +36,14 @@ class TopicView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = self.request.GET.get("q")
-        if query is not None: 
+        if query is not None:
             self.queryset = Topic.objects.filter(Q(title__icontains=query))
         return super().get_queryset()
 
-    def retrieve(self, request, pk):
-        serializer = TopicSerializer(self.get_object(), context={"include_chapters":True})
+    def list(self, request):
+        serializer = TopicSerializer(self.get_queryset(), many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class ChapterView(viewsets.ModelViewSet):
     permission_classes = [IsSuperUserOrReadOnly]
@@ -48,13 +52,14 @@ class ChapterView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = self.request.GET.get("q")
-        if query is not None: 
+        if query is not None:
             self.queryset = Chapter.objects.filter(Q(title__icontains=query))
         return super().get_queryset()
 
-    def retrieve(self, request, pk):
-        serializer = ChapterSerializer(self.get_object(), context={"include_lessons":True})
+    def retrieve(self, request):
+        serializer = ChapterSerializer(self.get_object(),context={"include_lessons"})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class LessonView(viewsets.ModelViewSet):
     permission_classes = [IsSuperUserOrReadOnly]
@@ -63,14 +68,16 @@ class LessonView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = self.request.GET.get("q")
-        if query is not None: 
+        if query is not None:
             self.queryset = Lesson.objects.filter(
                 Q(title__icontains=query) | Q(course__title__icontains=query)
             )
         return super().get_queryset()
-    
+
     def retrieve(self, request, pk):
-        serializer = LessonSerializer(self.get_object(), context={"include_sections":True})
+        serializer = LessonSerializer(
+            self.get_object(), context={"include_sections": True}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -80,7 +87,9 @@ class SectionView(viewsets.ModelViewSet):
     queryset = Section.objects.all()
 
     def retrieve(self, request, pk):
-        serializer = SectionSerializer(self.get_object(), context={"include_contents":True})
+        serializer = SectionSerializer(
+            self.get_object(), context={"include_contents": True}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -109,10 +118,8 @@ class ExerciseView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = self.request.GET.get("q")
-        if query is not None: 
-            self.queryset = Exercise.objects.filter(
-                Q(title__icontains=query) 
-            )
+        if query is not None:
+            self.queryset = Exercise.objects.filter(Q(title__icontains=query))
         return super().get_queryset()
 
 
@@ -123,43 +130,43 @@ class ExaminationView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = self.request.GET.get("q")
-        if query is not None: 
+        if query is not None:
             self.queryset = Examination.objects.filter(
                 Q(title__icontains=query) | Q(chapter__title__icontains=query)
             )
         return super().get_queryset()
 
     def get_object(self):
-        pk = self.kwargs.get('pk')
+        pk = self.kwargs.get("pk")
         try:
             return Examination.objects.get(pk=pk)
         except Examination.DoesNotExist:
             raise Http404
-        
+
     def retrieve(self, request, pk):
-        serializer = ExaminationSerializer(self.get_object(), context={'include_questions': True})
+        serializer = ExaminationSerializer(
+            self.get_object(), context={"include_questions": True}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"])
-    def send(self,request, pk):
+    def send(self, request, pk):
         assignment = Assignment.objects.create(
-            author=request.user,
-            examination=Examination.objects.get(pk=pk),
-            score=0
+            author=request.user, examination=Examination.objects.get(pk=pk), score=0
         )
         score = 0
         for i in range(len(request.data)):
             if not request.data[i]["choice"] == 0:
                 userchoice = UserChoice.objects.create(
                     assignment=assignment,
-                    question=Question.objects.get(pk=request.data[i]['id']),
+                    question=Question.objects.get(pk=request.data[i]["id"]),
                     choice=Choice.objects.get(pk=request.data[i]["choice"]),
                 )
-                score += userchoice.question.answer == userchoice.choice.title 
-        score *= assignment.examination.total_score/len(request.data)
+                score += userchoice.question.answer == userchoice.choice.title
+        score *= assignment.examination.total_score / len(request.data)
         assignment.score = round(score)
         assignment.save()
-        return Response({"status":"Nộp bài thành công"}, status=status.HTTP_200_OK)
+        return Response({"status": "Nộp bài thành công"}, status=status.HTTP_200_OK)
 
 
 class QuestionView(viewsets.ModelViewSet):
@@ -178,17 +185,19 @@ class AssignmentView(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrReadOnly]
     serializer_class = AssignmentSerializer
     queryset = Assignment.objects.all()
-    
+
     def get_queryset(self):
         query = self.request.GET.get("q")
-        if query is not None: 
+        if query is not None:
             self.queryset = Lesson.objects.filter(
                 Q(examination__title__icontains=query) | Q(score__icontains=query)
             )
         return super().get_queryset()
 
     def retrieve(self, request, pk):
-        serializer = AssignmentSerializer(self.get_object(), context={"include_questions":True})
+        serializer = AssignmentSerializer(
+            self.get_object(), context={"include_questions": True}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def perform_create(self, serializer):
@@ -208,7 +217,7 @@ class UserQuestionView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         query = self.request.GET.get("q")
-        if query is not None: 
+        if query is not None:
             self.queryset = UserQuestion.objects.filter(
                 Q(content__icontains=query) | Q(author__icontains=query)
             )
@@ -222,7 +231,6 @@ class AnswerForUQView(viewsets.ModelViewSet):
     permission_classes = [IsAuthorOrReadOnly]
     serializer_class = AnswerForUQSerializer
     queryset = AnswerForUQ.objects.all()
-    
+
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
-
