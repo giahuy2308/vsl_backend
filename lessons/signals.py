@@ -97,6 +97,8 @@ def update_obj_no_after_delete(sender, instance, **kwargs):
 
 def update_section_component_no(instance, is_insert_instance):
     sec = instance.section
+    sec.save(update_fields=["component_quantity"])
+    
     scl = (
         list(sec.contents.all())
         + list(sec.images.all())
@@ -113,9 +115,6 @@ def update_section_component_no(instance, is_insert_instance):
         if v.no != i:
             v.no = i
             v.save(update_fields=["no"])
-
-    # Cập nhật lại số lượng nội dung cho section
-    sec.save(update_fields=["component_quantity"])
 
 
 def delete_section_component(instance):
@@ -136,13 +135,13 @@ def create_or_update_section_component(instance, created):
 @receiver(post_save, sender=Image)
 @receiver(post_save, sender=Animation)
 @receiver(post_save, sender=Exercise)
-def handle_section_component(sender, instance, created, **kwargs):
+def handle_create_or_update_section_component(sender, instance, created, **kwargs):
     create_or_update_section_component(instance, created)
 
 
 @receiver(post_delete, sender=Content)
 @receiver(post_delete, sender=Image)
 @receiver(post_delete, sender=Animation)
-@receiver(post_save, sender=Exercise)
-def handle_section_component(sender, instance, **kwargs):
+@receiver(post_delete, sender=Exercise)
+def handle_delete_section_component(sender, instance, **kwargs):
     delete_section_component(instance)
