@@ -111,7 +111,7 @@ class ExerciseView(viewsets.ModelViewSet):
         query = self.request.GET.get("q")
         if query is not None: 
             self.queryset = Exercise.objects.filter(
-                Q(title__icontains=query) | Q(lesson__title__icontains=query)
+                Q(title__icontains=query) 
             )
         return super().get_queryset()
 

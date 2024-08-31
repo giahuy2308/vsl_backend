@@ -111,12 +111,13 @@ class SectionSerializer(serializers.ModelSerializer):
             contents = ContentSerializer(instance.contents, many=True).data
             images = ImageSerializer(instance.images, many=True).data
             animations = AnimationSerializer(instance.animations, many=True).data
-            li = sorted(contents + images + animations, key=lambda obj: obj["no"])
+            exercises = ExerciseSerializer(instance.exercises, many=True).data
+            li = sorted(contents + images + animations + exercises, key=lambda obj: obj["no"])
 
             for obj in li:
                 obj.pop("section")
 
-            representation["contents"] = li
+            representation["components"] = li
 
         return representation
 

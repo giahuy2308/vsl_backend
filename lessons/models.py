@@ -14,7 +14,7 @@ class Course(models.Model):
 
 class ModelWithNo(models.Model):
     title = models.CharField(max_length=255, default="", unique=True)
-    no = models.PositiveBigIntegerField(default=-1)
+    no = models.BigIntegerField(default=-1)
 
     class Meta:
         abstract = True
@@ -44,7 +44,7 @@ class Section(ModelWithNo):
     lesson = models.ForeignKey(
         Lesson, related_name="sections", on_delete=models.CASCADE
     )
-    content_quantity = models.PositiveBigIntegerField(default=0)
+    component_quantity = models.PositiveBigIntegerField(default=0)
 
     def __str__(self):
         return f"{self.no} | {self.id}"
@@ -54,7 +54,7 @@ class SectionContentModel(models.Model):
     section = models.ForeignKey(
         Section, related_name="%(class)ss", on_delete=models.CASCADE
     )
-    no = models.PositiveBigIntegerField(default=-1)
+    no = models.BigIntegerField(default=-1)
 
     class Meta:
         abstract = True
@@ -85,15 +85,9 @@ class Animation(SectionContentModel):
     )
 
 
-class Exercise(models.Model):
+class Exercise(SectionContentModel):
     content = models.TextField()
     answer = models.TextField()
-    lesson = models.ForeignKey(
-        Lesson, related_name="exercises", on_delete=models.CASCADE
-    )
-
-    def __str__(self):
-        return f"{self.id}"
 
 
 class Examination(models.Model):
