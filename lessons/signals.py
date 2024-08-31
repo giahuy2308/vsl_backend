@@ -99,7 +99,7 @@ def update_obj_no_after_delete(sender, instance, **kwargs):
 def update_section_component_no(instance, is_insert_instance):
     sec = instance.section
     sec.save(update_fields=["component_quantity"])
-    
+
     scl = (
         list(sec.contents.all())
         + list(sec.images.all())

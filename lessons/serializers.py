@@ -30,9 +30,14 @@ class CourseSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        topics = TopicSerializer(instance.topics.all(), many=True).data
+
+        topics = TopicSerializer(
+            instance.topics.all(), context={"include_topics": True}, many=True
+        ).data
+
         for obj in topics:
             obj.pop("course")
+
         representation["topics"] = topics
 
         return representation
@@ -46,12 +51,15 @@ class TopicSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
-        chapters = ChapterSerializer(instance.chapters, many=True).data
+        if self.context.get("include_topics"):
+            chapters = ChapterSerializer(
+                instance.chapters, context={"include_chapters": True}, many=True
+            ).data
 
-        for obj in chapters:
-            obj.pop("topic")
+            for obj in chapters:
+                obj.pop("topic")
 
-        representation["chapters"] = chapters
+            representation["chapters"] = chapters
 
         return representation
 
@@ -64,8 +72,10 @@ class ChapterSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         representation = super().to_representation(instance)
 
-        if self.context.get("include_lessons"):
-            lessons = LessonSerializer(instance.lessons, many=True).data
+        if self.context.get("include_chapters"):
+            lessons = LessonSerializer(
+                instance.lessons, context={"include_lessons": True}, many=True
+            ).data
 
             for obj in lessons:
                 obj.pop("chapter")
@@ -73,6 +83,7 @@ class ChapterSerializer(serializers.ModelSerializer):
             representation["lessons"] = lessons
 
         return representation
+
 
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:
@@ -107,7 +118,9 @@ class SectionSerializer(serializers.ModelSerializer):
             images = ImageSerializer(instance.images, many=True).data
             animations = AnimationSerializer(instance.animations, many=True).data
             exercises = ExerciseSerializer(instance.exercises, many=True).data
-            li = sorted(contents + images + animations + exercises, key=lambda obj: obj["no"])
+            li = sorted(
+                contents + images + animations + exercises, key=lambda obj: obj["no"]
+            )
 
             for obj in li:
                 obj.pop("section")
