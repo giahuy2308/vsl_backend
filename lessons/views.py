@@ -24,11 +24,11 @@ class CourseView(viewsets.ModelViewSet):
             self.queryset = Course.objects.filter(Q(title__icontains=query))
         return super().get_queryset()
 
-    def retrieve(self, request, pk):
-        serializer = CourseSerializer(
-            self.get_object(), context={"include_topics": True}
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # def retrieve(self, request, pk):
+    #     serializer = CourseSerializer(
+    #         self.get_object(), context={"include_topics": True}
+    #     )
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TopicView(viewsets.ModelViewSet):
@@ -42,17 +42,17 @@ class TopicView(viewsets.ModelViewSet):
             self.queryset = Topic.objects.filter(Q(title__icontains=query))
         return super().get_queryset()
 
-    def list(self, request):
-        serializer = TopicSerializer(
-            self.get_queryset(), context={"include_chapters": True}, many=True
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # def list(self, request):
+    #     serializer = TopicSerializer(
+    #         self.get_queryset(), context={"include_chapters": True}, many=True
+    #     )
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def retrieve(self, request, pk):
-        serializer = TopicSerializer(
-            self.get_object(), context={"include_chapters": True}
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # def retrieve(self, request, pk):
+    #     serializer = TopicSerializer(
+    #         self.get_object(), context={"include_chapters": True}
+    #     )
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ChapterView(viewsets.ModelViewSet):
@@ -66,17 +66,17 @@ class ChapterView(viewsets.ModelViewSet):
             self.queryset = Chapter.objects.filter(Q(title__icontains=query))
         return super().get_queryset()
 
-    def list(self, request):
-        serializer = ChapterSerializer(
-            self.get_queryset(), context={"include_lessons": True}
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # def list(self, request):
+    #     serializer = ChapterSerializer(
+    #         self.get_queryset(), context={"include_lessons": True}
+    #     )
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def retrieve(self, request, pk):
-        serializer = ChapterSerializer(
-            self.get_object(), context={"include_lessons": True}
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    # def retrieve(self, request, pk):
+    #     serializer = ChapterSerializer(
+    #         self.get_object(), context={"include_lessons": True}
+    #     )
+    #     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class LessonView(viewsets.ModelViewSet):

@@ -38,6 +38,7 @@ class Lesson(ModelWithNo):
     chapter = models.ForeignKey(
         Chapter, related_name="lessons", on_delete=models.CASCADE
     )
+    description = models.TextField(default="")
 
 
 class Section(ModelWithNo):
