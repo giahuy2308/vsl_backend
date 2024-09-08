@@ -1,14 +1,14 @@
 from django.urls import path, re_path
 
-from rest_framework.routers import SimpleRouter
+from rest_framework.routers import SimpleRouter, DefaultRouter
 
 from .views import *
 
 from djoser.urls.base import router, views 
 
-route = SimpleRouter()
-route.register(f"notification", NotificationView)
-router.register(f"", views.UserViewSet, basename="")
+router = DefaultRouter()
+router.register(f"notification", NotificationView, basename="not")
+router.register(f"", views.UserViewSet, basename="user")
 
 urlpatterns =  [ 
     re_path(
@@ -21,4 +21,4 @@ urlpatterns =  [
     path("jwt/refresh/", CustomTokenRefreshView.as_view(), name="jwt-refresh"),
     path("jwt/verify/", CustomTokenVerifyView.as_view(), name="jwt-verify"),
     
-] + route.urls + router.urls
+] + router.urls

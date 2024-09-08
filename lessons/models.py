@@ -4,12 +4,7 @@ from django.db import models
 import os
 
 
-class Course(models.Model):
-    title = models.CharField(max_length=255, default="")
-    description = models.TextField(blank=True, null=True)
 
-    def __str__(self):
-        return f"{self.id}"
 
 
 class ModelWithNo(models.Model):
@@ -23,6 +18,11 @@ class ModelWithNo(models.Model):
     def __str__(self) -> str:
         return f"{self.no} | {self.id}"
 
+class Course(ModelWithNo):
+    description = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.id}"
 
 class Topic(ModelWithNo):
     course = models.ForeignKey(Course, related_name="topics", on_delete=models.CASCADE)
@@ -70,6 +70,8 @@ class Content(SectionContentModel):
 
 class Image(SectionContentModel):
     alt = models.CharField(max_length=100, default="")
+    width = models.PositiveBigIntegerField(default=1)
+    height = models.PositiveBigIntegerField(default=1)
     image = models.ImageField(upload_to="static/image/")
     title = models.CharField(max_length=100, blank=True, null=True)
 
